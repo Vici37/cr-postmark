@@ -73,10 +73,23 @@ module Postmark
     end
   end
 
-  json_record EmailResponse,
-    to : String,
-    submitted_at : String,
-    message_id : String,
-    error_code : Int32,
-    message : String
+  # This gets the hand crafted treatment, because otherwise `message_id` turns into `MessageId`, when
+  # it should be `MessageID`. Doesn't happen with `template_id` above, only this one.
+  class EmailResponse
+    include JSON::Serializable
+
+    @[JSON::Field(key: "To")]
+    getter to : String
+    @[JSON::Field(key: "SubmittedAt")]
+    getter submitted_at : String
+    @[JSON::Field(key: "MessageID")]
+    getter message_id : String
+    @[JSON::Field(key: "ErrorCode")]
+    getter error_code : Int32
+    @[JSON::Field(key: "Message")]
+    getter message : String
+
+    def initialize(@to : String, @submitted_at : String, @message_id : String, @error_code : Int32, @message : String)
+    end
+  end
 end

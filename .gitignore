@@ -3,6 +3,7 @@
 /bin/
 /.shards/
 *.dwarf
+*ignore_me*
 
 # Libraries don't need dependency lock
 # Dependencies will be locked in applications that use them
