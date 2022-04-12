@@ -55,10 +55,9 @@ module Postmark
 
     private def make_call(endpoint, json)
       logger.debug { "Sending email to URL: #{@uri}#{endpoint}" }
-      HTTP::Client.post("#{@uri}#{endpoint}", request_headers, json) do |resp|
-        logger.debug { "Received a #{resp.status_code} status code" }
-        yield resp
-      end
+      resp = HTTP::Client.post("#{@uri}#{endpoint}", request_headers, json)
+      logger.debug { "Received a #{resp.status_code} status code" }
+      yield resp
     end
   end
 end
