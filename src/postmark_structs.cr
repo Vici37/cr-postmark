@@ -4,7 +4,7 @@ module Postmark
       include JSON::Serializable
 
       {% for property in properties %}
-      @[JSON::Field(key: "{{property.var.id.split("_").map(&.capitalize).join("").id}}")]
+      @[JSON::Field(key: "{{property.var.id.camelcase.id}}")]
       getter {{property}}
       {% end %}
 
