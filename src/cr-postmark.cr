@@ -39,15 +39,26 @@ module Postmark
     end
 
     def deliver_batch(letters : Array(Email) | Array(TemplateEmail)) : Array(EmailResponse)
+      logger.debug { "Batch size of #{letters.size} being sent" }
       endpoint = letters.is_a?(Array(Email)) ? "email/batch" : "email/batchWithTemplates"
-      resp = HTTP::Client.post("#{@uri}#{endpoint}", request_headers, {Messages: letters}.to_json)
-      resp.status_code == 200 ? Array(EmailResponse).from_json(resp.body) : [EmailResponse.from_json(resp.body)]
+      make_call(endpoint, {Messages: letters}.to_json) do |resp|
+        resp.status_code == 200 ? Array(EmailResponse).from_json(resp.body) : [EmailResponse.from_json(resp.body)]
+      end
     end
 
     def deliver(email : Email | TemplateEmail) : EmailResponse
       endpoint = email.is_a?(Email) ? "email" : "email/withTemplate"
-      resp = HTTP::Client.post("#{@uri}#{endpoint}", request_headers, email.to_json)
-      EmailResponse.from_json(resp.body)
+      make_call(endpoint, email.to_json) do |resp|
+        EmailResponse.from_json(resp.body)
+      end
+    end
+
+    private def make_call(endpoint, json)
+      logger.debug { "Sending email to URL: #{@uri}#{endpoint}" }
+      HTTP::Client.post("#{@uri}#{endpoint}", request_headers, json) do |resp|
+        logger.debug { "Received a #{resp.status_code} status code" }
+        yield resp
+      end
     end
   end
 end
