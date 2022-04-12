@@ -79,11 +79,11 @@ module Postmark
     include JSON::Serializable
 
     @[JSON::Field(key: "To")]
-    getter to : String
+    getter to : String? = nil
     @[JSON::Field(key: "SubmittedAt")]
-    getter submitted_at : String
+    getter submitted_at : String? = nil
     @[JSON::Field(key: "MessageID")]
-    getter message_id : String
+    getter message_id : String? = nil
     @[JSON::Field(key: "ErrorCode")]
     getter error_code : Int32
     @[JSON::Field(key: "Message")]

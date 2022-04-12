@@ -22,19 +22,29 @@ module Postmark
       }
     end
 
-    def deliver_email(
-      **kwargs
-    )
-      deliver(Email.new(**kwargs))
+    def email_of(**kwargs) : Email
+      Email.new(**kwargs)
     end
 
-    def deliver_template(
-      **kwargs
-    )
-      deliver(TemplateEmail.new(**kwargs))
+    def template_of(**kwargs) : TemplateEmail
+      TemplateEmail.new(**kwargs)
     end
 
-    def deliver(email : Email | TemplateEmail)
+    def deliver_email(**kwargs) : EmailResponse
+      deliver(email_of(**kwargs))
+    end
+
+    def deliver_template(**kwargs) : EmailResponse
+      deliver(template_of(**kwargs))
+    end
+
+    def deliver_batch(letters : Array(Email) | Array(TemplateEmail)) : Array(EmailResponse)
+      endpoint = letters.is_a?(Array(Email)) ? "email/batch" : "email/batchWithTemplates"
+      resp = HTTP::Client.post("#{@uri}#{endpoint}", request_headers, {Messages: letters}.to_json)
+      resp.status_code == 200 ? Array(EmailResponse).from_json(resp.body) : [EmailResponse.from_json(resp.body)]
+    end
+
+    def deliver(email : Email | TemplateEmail) : EmailResponse
       endpoint = email.is_a?(Email) ? "email" : "email/withTemplate"
       resp = HTTP::Client.post("#{@uri}#{endpoint}", request_headers, email.to_json)
       EmailResponse.from_json(resp.body)
